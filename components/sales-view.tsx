@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button"
 import type { ColumnType, CustomColumn, SalesMeeting, TableConfig, ViewType } from "@/lib/data"
 import { AlignLeft, Clock, Eye } from "lucide-react"
 import { PageHeader } from "./page-header"
-import { TableToolbar } from "./table-toolbar"
 import type { Dispatch, SetStateAction } from "react"
 import { MeetingTable } from "./meeting-table"
+import { AutomationDrawer } from "./automation-drawer"
+import { TableToolbar } from "./table-toolbar" // Import TableToolbar
 
 const KanbanBoard = lazy(() => import("./kanban-board"))
 const DashboardView = lazy(() => import("./dashboard-view"))
@@ -41,6 +42,7 @@ export function SalesView({
 }) {
   const [activeViews, setActiveViews] = React.useState<ViewType["id"][]>(["table"])
   const [currentView, setCurrentView] = React.useState<ViewType["id"]>("table")
+  const [isAutomationDrawerOpen, setIsAutomationDrawerOpen] = React.useState(false)
 
   const handleAddView = (view: ViewType["id"]) => {
     if (!activeViews.includes(view)) {
@@ -70,7 +72,7 @@ export function SalesView({
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-white">
-      <PageHeader setShowMeetingTable={setShowMeetingTable} />
+      <PageHeader onBack={() => setShowMeetingTable(false)} onAutomationClick={() => setIsAutomationDrawerOpen(true)} />
       <main className="mx-auto w-full max-w-screen-xl flex-1 px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Sales Follow-up Meetings</h1>
@@ -120,6 +122,7 @@ export function SalesView({
           ?
         </Button>
       </footer>
+      <AutomationDrawer isOpen={isAutomationDrawerOpen} onClose={() => setIsAutomationDrawerOpen(false)} />
     </div>
   )
 }

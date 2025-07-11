@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   Bold,
+  Bot,
   ChevronDown,
   Cloud,
   Code,
@@ -23,13 +24,18 @@ import {
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import type { Dispatch, SetStateAction } from "react"
 
-export function PageHeader({ setShowMeetingTable }: { setShowMeetingTable: Dispatch<SetStateAction<boolean>> }) {
+export function PageHeader({
+  onBack,
+  onAutomationClick,
+}: {
+  onBack: () => void
+  onAutomationClick: () => void
+}) {
   return (
     <header className="flex h-14 items-center justify-between border-b bg-white px-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => setShowMeetingTable(false)}>
+        <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex items-center gap-1">
@@ -96,6 +102,10 @@ export function PageHeader({ setShowMeetingTable }: { setShowMeetingTable: Dispa
             <AvatarFallback>U2</AvatarFallback>
           </Avatar>
         </div>
+        <Button variant="ghost" className="bg-gray-100" onClick={onAutomationClick}>
+          <Bot className="mr-2 h-4 w-4" />
+          Automation
+        </Button>
         <Button variant="ghost" className="bg-gray-100">
           <Share2 className="mr-2 h-4 w-4" />
           Share

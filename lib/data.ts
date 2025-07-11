@@ -118,6 +118,14 @@ export type Document = {
 
 export const documents: Document[] = [
   {
+    id: 19,
+    name: "Automation Demo (Project Management)",
+    icon: Table2,
+    creator: "You",
+    lastViewed: "Just now",
+    isMeeting: true,
+  },
+  {
     id: 17,
     name: "Meetings with Customers (Meeting Table Demo)",
     icon: Table2,
@@ -297,4 +305,97 @@ export const mockInsights: string[] = [
   "Next steps: Schedule a technical deep-dive with their engineering team.",
   "Question raised: Can we provide on-site training?",
   "Idea proposed: Offer a multi-year discount to secure a longer-term commitment.",
+]
+
+export type EeTask = {
+  id: string
+  taskName: string
+  count?: number
+  subRows?: EeTask[]
+}
+
+export const eeDemoData: EeTask[] = [
+  { id: "01/2025", taskName: "01/2025", count: 15 },
+  { id: "02/2025", taskName: "02/2025", count: 93 },
+  { id: "03/2025", taskName: "03/2025", count: 181 },
+  { id: "04/2025", taskName: "04/2025", count: 176 },
+  { id: "05/2025", taskName: "05/2025", count: 122 },
+  { id: "06/2025", taskName: "06/2025", count: 171 },
+  { id: "07/2025", taskName: "07/2025", count: 131 },
+  {
+    id: "08/2025",
+    taskName: "08/2025",
+    count: 73,
+    subRows: [
+      { id: "anny-chen", taskName: "Anny Chen", count: 8 },
+      { id: "cyania-sun", taskName: "Cyania Sun", count: 7 },
+      { id: "danni-wu", taskName: "Danni Wu", count: 10 },
+      { id: "diane-yang", taskName: "Diane Yang", count: 6 },
+      { id: "fan-you", taskName: "Fan You", count: 1 },
+    ],
+  },
+]
+
+export type Project = {
+  id: string
+  name: string
+  status: "Done" | "In progress" | "Backlog" | "Todo" | "Canceled"
+  startDate: string
+  endDate: string
+  lead: string
+  team: string[]
+  milestone: string
+}
+
+export const projectManagementData: Project[] = [
+  {
+    id: "PROJ-001",
+    name: "Website Redesign",
+    status: "In progress",
+    startDate: "2025-06-01",
+    endDate: "2025-09-30",
+    lead: "Alice Johnson",
+    team: ["Bob", "Charlie"],
+    milestone: "Phase 1 Completion",
+  },
+  {
+    id: "PROJ-002",
+    name: "Mobile App Development",
+    status: "Done",
+    startDate: "2025-04-15",
+    endDate: "2025-08-15",
+    lead: "David Lee",
+    team: ["Eve", "Frank"],
+    milestone: "App Store Launch",
+  },
+  {
+    id: "PROJ-003",
+    name: "API Integration",
+    status: "Todo",
+    startDate: "2025-07-20",
+    endDate: "2025-10-15",
+    lead: "Grace Hall",
+    team: ["Heidi", "Ivan"],
+    milestone: "Testing Phase",
+  },
+  {
+    id: "PROJ-004",
+    name: "Marketing Campaign",
+    status: "Backlog",
+    startDate: "2025-08-01",
+    endDate: "2025-11-01",
+    lead: "Jack Miller",
+    team: ["Karen", "Leo"],
+    milestone: "Campaign Launch",
+  },
+  {
+    id: "PROJ-005",
+    name: "Infrastructure Upgrade",
+    status: "Canceled",
+    startDate: "2025-05-01",
+    endDate: "2025-07-31",
+    lead: "Mona Scott",
+    team: ["Nina", "Oscar"],
+    milestone: "Server Migration",
+  },
 ]

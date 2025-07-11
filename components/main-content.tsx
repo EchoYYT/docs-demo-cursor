@@ -6,13 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { documents, mainActions } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { ExternalLink, MessageSquare, MoreHorizontal, Users } from "lucide-react"
-import type { Dispatch, SetStateAction } from "react"
 
-export function MainContent({
-  setShowConfigureScreen,
-}: {
-  setShowConfigureScreen: Dispatch<SetStateAction<boolean>>
-}) {
+export function MainContent({ onRecentItemClick }: { onRecentItemClick: (docId: number) => void }) {
   return (
     <main className="flex-1 p-6">
       <header className="mb-6">
@@ -46,12 +41,15 @@ export function MainContent({
               <TableRow
                 key={doc.id}
                 className="group cursor-pointer hover:bg-gray-50"
-                onClick={() => doc.id === 17 && setShowConfigureScreen(true)}
+                onClick={() => onRecentItemClick(doc.id)}
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <doc.icon
-                      className={cn("h-5 w-5 flex-shrink-0", doc.isMeeting ? "text-green-500" : "text-blue-500")}
+                      className={cn(
+                        "h-5 w-5 flex-shrink-0",
+                        doc.id === 18 ? "text-purple-500" : doc.isMeeting ? "text-green-500" : "text-blue-500",
+                      )}
                     />
                     <div>
                       <p className="font-medium">{doc.name}</p>

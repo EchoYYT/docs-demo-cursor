@@ -14,10 +14,13 @@ import {
   type SalesMeeting,
   mockInsights,
 } from "@/lib/data"
+import { ProjectManagementView } from "@/components/project-management-view"
+import { Toaster } from "@/components/ui/toaster"
 
 export default function DashboardPage() {
   const [showConfigureScreen, setShowConfigureScreen] = useState(false)
   const [showMeetingTable, setShowMeetingTable] = useState(false)
+  const [showProjectManagementView, setShowProjectManagementView] = useState(false)
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [tableConfig, setTableConfig] = useState<TableConfig>({
     includeSummary: true,
@@ -47,6 +50,23 @@ export default function DashboardPage() {
     }
   }
 
+  const handleRecentItemClick = (docId: number) => {
+    if (docId === 17) {
+      setShowConfigureScreen(true)
+    } else if (docId === 19) {
+      setShowProjectManagementView(true)
+    }
+  }
+
+  if (showProjectManagementView) {
+    return (
+      <>
+        <ProjectManagementView setShowProjectManagementView={setShowProjectManagementView} />
+        <Toaster />
+      </>
+    )
+  }
+
   if (showMeetingTable) {
     return (
       <>
@@ -65,24 +85,31 @@ export default function DashboardPage() {
           config={tableConfig}
           onConfigChange={setTableConfig}
         />
+        <Toaster />
       </>
     )
   }
 
   if (showConfigureScreen) {
     return (
-      <ConfigureSync
-        setShowConfigureScreen={setShowConfigureScreen}
-        setShowMeetingTable={setShowMeetingTable}
-        setTableConfig={setTableConfig}
-      />
+      <>
+        <ConfigureSync
+          setShowConfigureScreen={setShowConfigureScreen}
+          setShowMeetingTable={setShowMeetingTable}
+          setTableConfig={setTableConfig}
+        />
+        <Toaster />
+      </>
     )
   }
 
   return (
-    <div className="flex min-h-screen bg-white">
-      <Sidebar />
-      <MainContent setShowConfigureScreen={setShowConfigureScreen} />
-    </div>
+    <>
+      <div className="flex min-h-screen bg-white">
+        <Sidebar />
+        <MainContent onRecentItemClick={handleRecentItemClick} />
+      </div>
+      <Toaster />
+    </>
   )
 }
