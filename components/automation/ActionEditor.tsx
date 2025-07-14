@@ -95,12 +95,12 @@ export function ActionEditor({ open, initial, onClose, onSave }: {
   };
 
   return (
-    <div className={`fixed top-0 right-0 h-full w-[400px] bg-white shadow-2xl border-l z-50 transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+    <div className="h-full w-full flex flex-col bg-white shadow-2xl border-l">
       <div className="p-6 border-b flex items-center justify-between">
         <span className="font-bold text-lg">设置执行动作</span>
         <button className="text-gray-400 hover:text-gray-600" onClick={onClose}>✕</button>
       </div>
-      <div className="p-6 space-y-4">
+      <div className="flex-1 overflow-auto p-6 space-y-4">
         {/* Action 列表 */}
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">

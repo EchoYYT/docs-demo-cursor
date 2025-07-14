@@ -6,9 +6,10 @@ import { ActionBlock } from './ActionBlock';
 import { TemplateBlock } from './TemplateBlock';
 import { TriggerEditor } from './TriggerEditor';
 import { ConditionEditor } from './ConditionEditor';
-import { ActionEditor } from './ActionEditor';
 import { Button } from '../ui/button';
 import { Plus, Zap, Search, Bot, Check, ChevronRight, Sparkles, Clock, Users, Target } from 'lucide-react';
+import { Sheet, SheetContent } from '../ui/sheet';
+import { ActionEditor } from './ActionEditor';
 
 interface AutomationOverviewProps {
   automation: AutomationItem | undefined;
@@ -25,6 +26,8 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const [showAction, setShowAction] = useState(false);
   const [editName, setEditName] = useState(automation.name);
   const [currentStep, setCurrentStep] = useState(0);
+  const [triggerInteracted, setTriggerInteracted] = useState(false);
+  const [conditionInteracted, setConditionInteracted] = useState(false);
 
   // 简化的状态管理 - 只控制抽屉的显示
   React.useEffect(() => {
@@ -32,6 +35,8 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     setShowTrigger(false);
     setShowCondition(false);
     setShowAction(false);
+    setTriggerInteracted(false);
+    setConditionInteracted(false);
   }, [automation.id]);
 
   // 检查是否已经开始配置
@@ -80,34 +85,21 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
 
   const nextStepIndex = getNextStep();
 
-  // 关闭所有抽屉的辅助函数
-  const closeAllDrawers = () => {
-    setShowTrigger(false);
+  // 只保留 handleOpenTrigger、handleOpenCondition、handleOpenAction，且只在点击时调用
+  const handleOpenTrigger = () => {
+    setShowTrigger(true);
     setShowCondition(false);
     setShowAction(false);
   };
-
-  // 打开触发器编辑器
-  const handleOpenTrigger = () => {
-    closeAllDrawers();
-    setShowTrigger(true);
-  };
-
-  // 打开条件编辑器
   const handleOpenCondition = () => {
-    closeAllDrawers();
     setShowCondition(true);
+    setShowTrigger(false);
+    setShowAction(false);
   };
-
-  // 打开动作编辑器
   const handleOpenAction = () => {
-    closeAllDrawers();
     setShowAction(true);
-  };
-  
-  // 添加执行动作 - 直接打开动作编辑器
-  const handleAddAction = () => {
-    handleOpenAction();
+    setShowTrigger(false);
+    setShowCondition(false);
   };
 
   // 模板导入逻辑
@@ -138,7 +130,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
         } 
       });
       // 模板导入后关闭所有抽屉
-      closeAllDrawers();
+      // closeAllDrawers(); // This function is no longer needed
     }
   };
 
@@ -157,10 +149,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const handleSaveTrigger = (trigger: any) => {
     dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { trigger } });
     setShowTrigger(false);
-    // 智能引导到下一步
-    if (automation.actions.length === 0) {
-      setTimeout(() => setCurrentStep(2), 300);
-    }
+    // 不再自动引导 currentStep
   };
 
   // 条件保存
@@ -169,14 +158,8 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     setShowCondition(false);
   };
 
-  // 动作保存
-  const handleSaveAction = (actions: any[]) => {
-    dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { actions } });
-    setShowAction(false);
-  };
-
   return (
-    <div className="w-full max-w-6xl mx-auto py-8">
+    <div className="w-full h-full flex flex-col relative">
       {/* 顶部名称和进度 */}
       <div className="mb-8 flex flex-col items-center">
         <input
@@ -187,7 +170,6 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
           onBlur={handleNameSave}
           onKeyDown={(e) => { if (e.key === 'Enter') handleNameSave(); }}
         />
-        
         {hasStarted && (
           <div className="w-full max-w-2xl mt-4">
             {/* 进度条 */}
@@ -201,7 +183,6 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
                 style={{ width: `${progress}%` }}
               />
             </div>
-            
             {/* 步骤指示器 */}
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
@@ -235,150 +216,81 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
             </div>
           </div>
         )}
-        
-        {!hasStarted && (
-          <div className="text-sm text-gray-500 mt-2">当发生什么事 → 如果满足某条件 → 执行某动作</div>
-        )}
+        {/* 这里不再显示欢迎页和“开始创建”按钮 */}
       </div>
 
-      {!hasStarted ? (
-        // 欢迎界面 - 参考 Airtable 的引导设计
-        <div className="flex flex-col items-center">
-          <div className="w-full max-w-2xl bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-lg border border-blue-100 px-8 py-12 mb-8">
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                    <Sparkles className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold text-white">AI</span>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">创建智能自动化</h3>
-              <p className="text-gray-600 mb-6">让 AI 帮你自动处理重复性工作，提升团队效率</p>
-              
-              <div className="grid grid-cols-3 gap-4 mb-6 text-sm">
-                <div className="flex flex-col items-center p-3 bg-white/50 rounded-lg">
-                  <Clock className="h-6 w-6 text-blue-500 mb-2" />
-                  <span className="font-medium">节省时间</span>
-                </div>
-                <div className="flex flex-col items-center p-3 bg-white/50 rounded-lg">
-                  <Users className="h-6 w-6 text-green-500 mb-2" />
-                  <span className="font-medium">团队协作</span>
-                </div>
-                <div className="flex flex-col items-center p-3 bg-white/50 rounded-lg">
-                  <Target className="h-6 w-6 text-purple-500 mb-2" />
-                  <span className="font-medium">精准执行</span>
-                </div>
-              </div>
-              
-              <Button 
-                onClick={handleStartConfig} 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                开始创建
-              </Button>
-            </div>
-          </div>
-          
-          {/* 智能模板推荐 */}
-          <TemplateBlock onImport={handleImportTemplate} />
+      {/* 主流程卡片区加 pr-[400px]，其余不变 */}
+      <div className="flex-1 flex flex-col items-center gap-4 pr-[400px]">
+        {/* 主流程卡片：触发器 */}
+        <TriggerBlock onEdit={handleOpenTrigger} trigger={automation.trigger} />
+        {/* 连接线和条件加号 */}
+        <div className="flex flex-col items-center relative">
+          <div className="w-px h-8 bg-gray-300"></div>
+          <button
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-blue-300 shadow hover:bg-blue-50 hover:border-blue-500 text-blue-600 hover:text-blue-700 transition-all duration-200 absolute left-1/2 -translate-x-1/2 -top-4 z-10"
+            title="添加条件判断"
+            onClick={handleOpenCondition}
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+          <div className="w-px h-8 bg-gray-300"></div>
+          {/* 已添加条件提示 */}
+          {automation.conditions.length > 0 && (
+            <div className="text-xs text-blue-600 mt-2">已添加 {automation.conditions.length} 个条件</div>
+          )}
         </div>
-      ) : (
-        // 配置界面 - 参考 Monday 的卡片式设计
-        <div className="flex flex-col items-center gap-6">
-          {/* 智能提示卡片 */}
-          {nextStepIndex < steps.length && (
-            <div className="w-full max-w-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-2">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <ChevronRight className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-blue-900">
-                    下一步：{steps[nextStepIndex].title}
-                  </p>
-                  <p className="text-xs text-blue-700">{steps[nextStepIndex].desc}</p>
-                </div>
-              </div>
+        {/* 主流程卡片：执行动作 */}
+        <ActionBlock onEdit={handleOpenAction} actions={automation.actions} />
+      </div>
+      {/* 完成状态 */}
+      {progress === 100 && (
+        <div className="w-full max-w-2xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mt-4">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="w-6 h-6 text-white" />
             </div>
-          )}
-          
-          {/* 配置块 */}
-          <div className="w-full flex flex-col items-center gap-4">
-            <TriggerBlock onEdit={() => handleOpenTrigger()} trigger={automation.trigger} />
-            
-            {/* 连接线 */}
-            <div className="flex flex-col items-center">
-              <div className="w-px h-6 bg-gray-300"></div>
-              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-              <div className="w-px h-6 bg-gray-300"></div>
+            <div className="text-center">
+              <p className="text-lg font-semibold text-green-900">自动化配置完成！</p>
+              <p className="text-sm text-green-700">你的工作流程已准备就绪</p>
             </div>
-            
-            <ConditionBlock onEdit={() => handleOpenCondition()} conditions={automation.conditions} />
-            
-            {/* 连接线 */}
-            <div className="flex flex-col items-center">
-              <div className="w-px h-6 bg-gray-300"></div>
-              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-              <div className="w-px h-6 bg-gray-300"></div>
-            </div>
-            
-            {showActionPanel ? (
-              <ActionBlock onEdit={() => handleOpenAction()} actions={automation.actions} />
-            ) : (
-              <div className="w-full max-w-2xl flex justify-center">
-                <Button 
-                  onClick={handleAddAction}
-                  variant="outline" 
-                  className="border-dashed border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 text-blue-600 hover:text-blue-700 px-8 py-6 rounded-xl transition-all duration-200"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  添加执行动作
-                </Button>
-              </div>
-            )}
           </div>
-          
-          {/* 完成状态 */}
-          {progress === 100 && (
-            <div className="w-full max-w-2xl bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 mt-4">
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                  <Check className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-semibold text-green-900">自动化配置完成！</p>
-                  <p className="text-sm text-green-700">你的工作流程已准备就绪</p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* 编辑器抽屉 */}
-      <TriggerEditor
-        open={showTrigger}
-        initial={automation.trigger}
-        onClose={() => setShowTrigger(false)}
-        onSave={handleSaveTrigger}
-      />
-            <ConditionEditor
-        open={showCondition}
-        initial={automation.conditions}
-        onClose={() => setShowCondition(false)}
-        onSave={handleSaveCondition}
-      />
-      <ActionEditor
-        open={showAction}
-        initial={automation.actions}
-        onClose={() => setShowAction(false)}
-        onSave={handleSaveAction}
-      />
+      {/* 右侧设置面板，绝对定位在抽屉内部右侧 */}
+      {showTrigger && (
+        <div className="absolute right-0 top-0 h-full w-[400px] z-20 bg-white shadow-xl border-l">
+          <TriggerEditor
+            open={showTrigger}
+            initial={automation.trigger}
+            onClose={() => setShowTrigger(false)}
+            onSave={handleSaveTrigger}
+          />
+        </div>
+      )}
+      {showCondition && (
+        <div className="absolute right-0 top-0 h-full w-[400px] z-20 bg-white shadow-xl border-l">
+          <ConditionEditor
+            open={showCondition}
+            initial={automation.conditions}
+            onClose={() => setShowCondition(false)}
+            onSave={handleSaveCondition}
+          />
+        </div>
+      )}
+      {showAction && (
+        <div className="absolute right-0 top-0 h-full w-[400px] z-20 bg-white shadow-xl border-l">
+          <ActionEditor
+            open={showAction}
+            initial={automation.actions}
+            onClose={() => setShowAction(false)}
+            onSave={actions => {
+              dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { actions } });
+              setShowAction(false);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 } 

@@ -10,7 +10,7 @@ export function AutomationDrawer({ isOpen, onClose }: { isOpen: boolean; onClose
   return (
     <AutomationProvider>
       <Drawer open={isOpen} onClose={onClose}>
-        <DrawerContent className="h-[90vh] max-w-5xl mx-auto p-0">
+        <DrawerContent className="w-screen h-[90vh] p-0 flex flex-col">
           <AutomationDrawerContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
@@ -36,7 +36,7 @@ function AutomationDrawerContent({ onClose }: { onClose: () => void }) {
 
   // 编辑页
   return (
-    <div className="relative">
+    <div className="relative flex-1 flex flex-col h-full">
       <DrawerHeader className="flex items-center gap-2 border-b bg-white sticky top-0 z-10">
         <Button variant="ghost" size="icon" onClick={() => dispatch({ type: 'SET_ACTIVE', id: null })}>
           <ArrowLeft className="h-5 w-5" />
@@ -47,7 +47,7 @@ function AutomationDrawerContent({ onClose }: { onClose: () => void }) {
         <div className="flex-1" />
         <Button variant="ghost" size="icon" onClick={onClose}>✕</Button>
       </DrawerHeader>
-      <div>
+      <div className="flex-1 h-0">
         <AutomationOverview automation={active} automationId={active.id} />
       </div>
     </div>

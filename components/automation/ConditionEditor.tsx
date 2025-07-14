@@ -36,48 +36,57 @@ export function ConditionEditor({ open, initial, onClose, onSave }: {
   };
 
   return (
-    <div className={`fixed top-0 right-0 h-full w-[360px] bg-white shadow-2xl border-l z-50 transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+    <div className="bg-white shadow-2xl border-l h-full w-full flex flex-col">
       <div className="p-6 border-b flex items-center justify-between">
         <span className="font-bold text-lg">设置条件判断</span>
         <button className="text-gray-400 hover:text-gray-600" onClick={onClose}>✕</button>
       </div>
-      <div className="p-6 space-y-4">
-        <div>
+      <div className="flex-1 overflow-auto p-6 space-y-4">
+        {/* 逻辑选择 */}
+        <div className="mb-4">
           <label className="block text-sm font-medium mb-2">条件逻辑</label>
-          <select className="w-full border rounded px-3 py-2" value={logic} onChange={e => setLogic(e.target.value as any)}>
+          <select
+            className="w-full border rounded px-3 py-2"
+            value={logic}
+            onChange={e => setLogic(e.target.value as 'AND' | 'OR')}
+          >
             <option value="AND">全部满足（AND）</option>
             <option value="OR">任一满足（OR）</option>
           </select>
         </div>
-        <div className="space-y-4">
+        {/* 条件列表 */}
+        <div className="space-y-2">
           {conditions.map((c, idx) => (
-            <div key={c.id} className="flex items-center gap-2 border rounded p-2">
+            <div key={c.id} className="flex items-center gap-2 border rounded px-3 py-2">
               <input
-                className="w-1/3 border rounded px-2 py-1"
-                placeholder="字段名"
+                className="border rounded px-2 py-1 text-sm"
                 value={c.field}
                 onChange={e => handleChange(idx, 'field', e.target.value)}
+                placeholder="字段"
               />
               <select
-                className="w-1/4 border rounded px-2 py-1"
+                className="border rounded px-2 py-1 text-sm"
                 value={c.operator}
                 onChange={e => handleChange(idx, 'operator', e.target.value)}
               >
-                {operators.map(op => (
-                  <option key={op.value} value={op.value}>{op.label}</option>
-                ))}
+                <option value="=">=</option>
+                <option value=">">&gt;</option>
+                <option value="<">&lt;</option>
+                <option value=">=">&gt;=</option>
+                <option value="<=">&lt;=</option>
+                <option value="!=">!=</option>
               </select>
               <input
-                className="w-1/3 border rounded px-2 py-1"
-                placeholder="值"
+                className="border rounded px-2 py-1 text-sm"
                 value={c.value}
                 onChange={e => handleChange(idx, 'value', e.target.value)}
+                placeholder="值"
               />
-              <button className="text-gray-400 hover:text-red-500" onClick={() => handleDelete(idx)}>✕</button>
+              <button className="text-xs text-red-500" onClick={() => handleDelete(idx)}>删除</button>
             </div>
           ))}
         </div>
-        <button className="w-full py-2 rounded bg-gray-100 hover:bg-gray-200 text-sm font-medium" onClick={handleAdd}>+ 添加条件</button>
+        <button className="mt-2 px-3 py-1 rounded border text-blue-600" onClick={handleAdd}>+ 添加条件</button>
       </div>
       <div className="p-6 border-t flex gap-2 justify-end bg-gray-50">
         <button className="px-4 py-2 rounded border" onClick={onClose}>取消</button>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Action } from './AutomationContext';
 import { ChevronRight, Bot, Check } from 'lucide-react';
 
-export function ActionBlock({ onEdit, actions }: { onEdit: () => void; actions: Action[] }) {
+export function ActionBlock({ onEdit, actions }: { onEdit?: () => void; actions: Action[] }) {
   const isSet = actions.length > 0;
   
   return (
