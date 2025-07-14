@@ -6,7 +6,7 @@ import { ActionBlock } from './ActionBlock';
 import { TemplateBlock } from './TemplateBlock';
 import { TriggerEditor } from './TriggerEditor';
 import { ConditionEditor } from './ConditionEditor';
-
+import { ActionEditor } from './ActionEditor';
 import { Button } from '../ui/button';
 import { Plus, Zap, Search, Bot, Check, ChevronRight, Sparkles, Clock, Users, Target } from 'lucide-react';
 
@@ -22,7 +22,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const { dispatch } = useAutomation();
   const [showTrigger, setShowTrigger] = useState(false);
   const [showCondition, setShowCondition] = useState(false);
-
+  const [showAction, setShowAction] = useState(false);
   const [editName, setEditName] = useState(automation.name);
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -31,6 +31,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     // 每次切换自动化时，确保所有抽屉都关闭
     setShowTrigger(false);
     setShowCondition(false);
+    setShowAction(false);
   }, [automation.id]);
 
   // 检查是否已经开始配置
@@ -83,6 +84,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const closeAllDrawers = () => {
     setShowTrigger(false);
     setShowCondition(false);
+    setShowAction(false);
   };
 
   // 打开触发器编辑器
@@ -97,9 +99,10 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     setShowCondition(true);
   };
 
-  // 打开动作编辑器 - 已删除
+  // 打开动作编辑器
   const handleOpenAction = () => {
-    // ActionEditor 已删除，这个函数不再需要
+    closeAllDrawers();
+    setShowAction(true);
   };
   
   // 添加执行动作 - 直接打开动作编辑器
@@ -139,9 +142,9 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     }
   };
 
-  // 开始配置触发器
+  // 开始配置触发器 - 不自动打开编辑器
   const handleStartConfig = () => {
-    handleOpenTrigger();
+    // 只是标记开始配置，不自动打开任何编辑器
     setCurrentStep(0);
   };
 
@@ -166,10 +169,10 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
     setShowCondition(false);
   };
 
-  // 动作保存 - 已删除
+  // 动作保存
   const handleSaveAction = (actions: any[]) => {
     dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { actions } });
-    // ActionEditor 已删除，不再需要关闭抽屉
+    setShowAction(false);
   };
 
   return (
@@ -324,8 +327,19 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
               <div className="w-px h-6 bg-gray-300"></div>
             </div>
             
-            {showActionPanel && (
+            {showActionPanel ? (
               <ActionBlock onEdit={() => handleOpenAction()} actions={automation.actions} />
+            ) : (
+              <div className="w-full max-w-2xl flex justify-center">
+                <Button 
+                  onClick={handleAddAction}
+                  variant="outline" 
+                  className="border-dashed border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 text-blue-600 hover:text-blue-700 px-8 py-6 rounded-xl transition-all duration-200"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  添加执行动作
+                </Button>
+              </div>
             )}
           </div>
           
@@ -353,13 +367,18 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
         onClose={() => setShowTrigger(false)}
         onSave={handleSaveTrigger}
       />
-      <ConditionEditor
+            <ConditionEditor
         open={showCondition}
         initial={automation.conditions}
         onClose={() => setShowCondition(false)}
         onSave={handleSaveCondition}
       />
-
+      <ActionEditor
+        open={showAction}
+        initial={automation.actions}
+        onClose={() => setShowAction(false)}
+        onSave={handleSaveAction}
+      />
     </div>
   );
 } 
