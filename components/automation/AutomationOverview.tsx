@@ -79,10 +79,35 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   };
 
   const nextStepIndex = getNextStep();
-  
-  // 添加执行动作 - 重写逻辑：直接打开动作编辑器
-  const handleAddAction = () => {
+
+  // 关闭所有抽屉的辅助函数
+  const closeAllDrawers = () => {
+    setShowTrigger(false);
+    setShowCondition(false);
+    setShowAction(false);
+  };
+
+  // 打开触发器编辑器
+  const handleOpenTrigger = () => {
+    closeAllDrawers();
+    setShowTrigger(true);
+  };
+
+  // 打开条件编辑器
+  const handleOpenCondition = () => {
+    closeAllDrawers();
+    setShowCondition(true);
+  };
+
+  // 打开动作编辑器
+  const handleOpenAction = () => {
+    closeAllDrawers();
     setShowAction(true);
+  };
+  
+  // 添加执行动作 - 直接打开动作编辑器
+  const handleAddAction = () => {
+    handleOpenAction();
   };
 
   // 模板导入逻辑
@@ -112,17 +137,15 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
           actions: template.actions
         } 
       });
-      // 模板导入后不自动打开编辑器
-      setShowAction(false);
+      // 模板导入后关闭所有抽屉
+      closeAllDrawers();
     }
   };
 
   // 开始配置触发器
   const handleStartConfig = () => {
-    setShowTrigger(true);
+    handleOpenTrigger();
     setCurrentStep(0);
-    // 确保不会自动打开 ActionEditor
-    setShowAction(false);
   };
 
   // 名称保存
@@ -134,8 +157,6 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const handleSaveTrigger = (trigger: any) => {
     dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { trigger } });
     setShowTrigger(false);
-    // 确保不会自动打开 ActionEditor
-    setShowAction(false);
     // 智能引导到下一步
     if (automation.actions.length === 0) {
       setTimeout(() => setCurrentStep(2), 300);
@@ -146,8 +167,6 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const handleSaveCondition = (conditions: any[]) => {
     dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { conditions } });
     setShowCondition(false);
-    // 确保不会自动打开 ActionEditor
-    setShowAction(false);
   };
 
   // 动作保存
@@ -290,7 +309,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
           
           {/* 配置块 */}
           <div className="w-full flex flex-col items-center gap-4">
-            <TriggerBlock onEdit={() => setShowTrigger(true)} trigger={automation.trigger} />
+            <TriggerBlock onEdit={() => handleOpenTrigger()} trigger={automation.trigger} />
             
             {/* 连接线 */}
             <div className="flex flex-col items-center">
@@ -299,7 +318,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
               <div className="w-px h-6 bg-gray-300"></div>
             </div>
             
-            <ConditionBlock onEdit={() => setShowCondition(true)} conditions={automation.conditions} />
+            <ConditionBlock onEdit={() => handleOpenCondition()} conditions={automation.conditions} />
             
             {/* 连接线 */}
             <div className="flex flex-col items-center">
@@ -309,7 +328,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
             </div>
             
             {showActionPanel ? (
-              <ActionBlock onEdit={() => setShowAction(true)} actions={automation.actions} />
+              <ActionBlock onEdit={() => handleOpenAction()} actions={automation.actions} />
             ) : (
               <div className="w-full max-w-2xl flex justify-center">
                 <Button 
