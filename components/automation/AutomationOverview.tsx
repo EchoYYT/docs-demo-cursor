@@ -23,14 +23,16 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const [showTrigger, setShowTrigger] = useState(false);
   const [showCondition, setShowCondition] = useState(false);
   const [showAction, setShowAction] = useState(false);
-  const [hasAddedAction, setHasAddedAction] = useState(automation.actions.length > 0);
+  const [hasAddedAction, setHasAddedAction] = useState(false);
   const [editName, setEditName] = useState(automation.name);
   const [currentStep, setCurrentStep] = useState(0);
 
   // 确保 showAction 只在用户明确点击时才为 true
   React.useEffect(() => {
     setShowAction(false);
-  }, [automation.id]);
+    // 只有当用户主动添加了动作或者已经有动作时才显示动作面板
+    setHasAddedAction(automation.actions.length > 0);
+  }, [automation.id, automation.actions]);
 
   // 检查是否已经开始配置
   const hasStarted = automation.trigger || automation.conditions.length > 0 || automation.actions.length > 0;
