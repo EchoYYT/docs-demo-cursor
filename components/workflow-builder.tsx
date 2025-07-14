@@ -47,7 +47,7 @@ export function WorkflowBuilder({ isOpen, onClose, onSave, workflow }: WorkflowB
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="h-screen max-h-screen w-screen max-w-full flex flex-col p-0 gap-0">
+      <DialogContent className="h-[85vh] max-h-[85vh] w-full max-w-4xl flex flex-col p-0 gap-0">
         <DialogHeader className="flex flex-row items-center justify-between border-b p-4">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">

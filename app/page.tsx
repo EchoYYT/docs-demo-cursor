@@ -4,7 +4,6 @@ import { useState } from "react"
 import { MainContent } from "@/components/main-content"
 import { Sidebar } from "@/components/sidebar"
 import { ConfigureSync } from "@/components/configure-sync"
-import { SalesView } from "@/components/sales-view"
 import { ConfigModal } from "@/components/config-modal"
 import {
   type TableConfig,
@@ -15,12 +14,15 @@ import {
   mockInsights,
 } from "@/lib/data"
 import { ProjectManagementView } from "@/components/project-management-view"
-import { Toaster } from "@/components/ui/toaster"
+import { MeetingTableView } from "@/components/meeting-table-view"
+import dynamic from 'next/dynamic';
+const Toaster = dynamic(() => import('@/components/ui/toaster'), { ssr: false });
+
 
 export default function DashboardPage() {
   const [showConfigureScreen, setShowConfigureScreen] = useState(false)
-  const [showMeetingTable, setShowMeetingTable] = useState(false)
   const [showProjectManagementView, setShowProjectManagementView] = useState(false)
+  const [showMeetingTableView, setShowMeetingTableView] = useState(false)
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [tableConfig, setTableConfig] = useState<TableConfig>({
     includeSummary: true,
@@ -28,6 +30,8 @@ export default function DashboardPage() {
   })
   const [customColumns, setCustomColumns] = useState<CustomColumn[]>([])
   const [meetings, setMeetings] = useState<SalesMeeting[]>(salesMeetingsData)
+
+
 
   const handleAddColumn = (columnType: ColumnType) => {
     const newColumn: CustomColumn = {
@@ -58,26 +62,30 @@ export default function DashboardPage() {
     }
   }
 
-  if (showProjectManagementView) {
+  if (showConfigureScreen) {
     return (
       <>
-        <ProjectManagementView setShowProjectManagementView={setShowProjectManagementView} />
+        <ConfigureSync
+          setShowConfigureScreen={setShowConfigureScreen}
+          setShowMeetingTableView={setShowMeetingTableView}
+          setTableConfig={setTableConfig}
+        />
         <Toaster />
       </>
     )
   }
 
-  if (showMeetingTable) {
+  if (showMeetingTableView) {
     return (
       <>
-        <SalesView
+        <MeetingTableView 
+          setShowMeetingTableView={setShowMeetingTableView}
           config={tableConfig}
           setShowConfigModal={setShowConfigModal}
           meetings={meetings}
           setMeetings={setMeetings}
           customColumns={customColumns}
           onAddColumn={handleAddColumn}
-          setShowMeetingTable={setShowMeetingTable}
         />
         <ConfigModal
           isOpen={showConfigModal}
@@ -90,18 +98,16 @@ export default function DashboardPage() {
     )
   }
 
-  if (showConfigureScreen) {
+  if (showProjectManagementView) {
     return (
       <>
-        <ConfigureSync
-          setShowConfigureScreen={setShowConfigureScreen}
-          setShowMeetingTable={setShowMeetingTable}
-          setTableConfig={setTableConfig}
-        />
+        <ProjectManagementView setShowProjectManagementView={setShowProjectManagementView} />
         <Toaster />
       </>
     )
   }
+
+
 
   return (
     <>
@@ -109,6 +115,7 @@ export default function DashboardPage() {
         <Sidebar />
         <MainContent onRecentItemClick={handleRecentItemClick} />
       </div>
+      {/* Toaster 保留，动态导入避免 SSR hydration 问题 */}
       <Toaster />
     </>
   )

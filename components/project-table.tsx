@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { projectManagementData, type Project } from "@/lib/data"
+import type { Project } from "@/lib/data"
 import { cn } from "@/lib/utils"
 
 const getStatusBadge = (status: Project["status"]) => {
@@ -40,7 +40,7 @@ const getStatusBadge = (status: Project["status"]) => {
   }
 }
 
-const columns: ColumnDef<Project>[] = [
+const createColumns = (): ColumnDef<Project>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -114,12 +114,27 @@ const columns: ColumnDef<Project>[] = [
   },
 ]
 
-export function ProjectManagementTable() {
-  const [data] = React.useState(() => [...projectManagementData])
+interface ProjectTableProps {
+  data: Project[]
+  onRowSelectionChange?: (selection: Record<string, boolean>) => void
+  onSortingChange?: (sorting: SortingState) => void
+  onColumnFiltersChange?: (filters: ColumnFiltersState) => void
+  onColumnVisibilityChange?: (visibility: VisibilityState) => void
+}
+
+export function ProjectTable({ 
+  data, 
+  onRowSelectionChange,
+  onSortingChange,
+  onColumnFiltersChange,
+  onColumnVisibilityChange
+}: ProjectTableProps) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const columns = React.useMemo(() => createColumns(), [])
 
   const table = useReactTable({
     data,
@@ -131,10 +146,26 @@ export function ProjectManagementTable() {
       columnFilters,
     },
     enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: (updater) => {
+      const newSelection = typeof updater === 'function' ? updater(rowSelection) : updater
+      setRowSelection(newSelection)
+      onRowSelectionChange?.(newSelection)
+    },
+    onSortingChange: (updater) => {
+      const newSorting = typeof updater === 'function' ? updater(sorting) : updater
+      setSorting(newSorting)
+      onSortingChange?.(newSorting)
+    },
+    onColumnFiltersChange: (updater) => {
+      const newFilters = typeof updater === 'function' ? updater(columnFilters) : updater
+      setColumnFilters(newFilters)
+      onColumnFiltersChange?.(newFilters)
+    },
+    onColumnVisibilityChange: (updater) => {
+      const newVisibility = typeof updater === 'function' ? updater(columnVisibility) : updater
+      setColumnVisibility(newVisibility)
+      onColumnVisibilityChange?.(newVisibility)
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -181,4 +212,4 @@ export function ProjectManagementTable() {
       </div>
     </div>
   )
-}
+} 
