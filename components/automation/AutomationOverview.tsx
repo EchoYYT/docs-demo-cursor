@@ -23,22 +23,22 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const [showTrigger, setShowTrigger] = useState(false);
   const [showCondition, setShowCondition] = useState(false);
   const [showAction, setShowAction] = useState(false);
-  const [hasAddedAction, setHasAddedAction] = useState(false);
   const [editName, setEditName] = useState(automation.name);
   const [currentStep, setCurrentStep] = useState(0);
 
-  // 确保 showAction 只在用户明确点击时才为 true
+  // 简化的状态管理 - 只控制抽屉的显示
   React.useEffect(() => {
+    // 每次切换自动化时，确保所有抽屉都关闭
+    setShowTrigger(false);
+    setShowCondition(false);
     setShowAction(false);
-    // 只有当用户主动添加了动作或者已经有动作时才显示动作面板
-    setHasAddedAction(automation.actions.length > 0);
-  }, [automation.id, automation.actions]);
+  }, [automation.id]);
 
   // 检查是否已经开始配置
   const hasStarted = automation.trigger || automation.conditions.length > 0 || automation.actions.length > 0;
   
-  // 检查是否显示动作配置面板
-  const showActionPanel = hasAddedAction;
+  // 检查是否显示动作配置面板 - 简化逻辑：只要有动作就显示
+  const showActionPanel = automation.actions.length > 0;
 
   // 计算配置进度
   const steps = [
@@ -80,11 +80,9 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
 
   const nextStepIndex = getNextStep();
   
-  // 添加执行动作
+  // 添加执行动作 - 重写逻辑：直接打开动作编辑器
   const handleAddAction = () => {
-    setHasAddedAction(true);
-    // 确保不会自动打开 ActionEditor
-    setShowAction(false);
+    setShowAction(true);
   };
 
   // 模板导入逻辑
@@ -114,8 +112,7 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
           actions: template.actions
         } 
       });
-      setHasAddedAction(true);
-      // 确保不会自动打开 ActionEditor
+      // 模板导入后不自动打开编辑器
       setShowAction(false);
     }
   };
@@ -157,9 +154,6 @@ export function AutomationOverview({ automation, automationId }: AutomationOverv
   const handleSaveAction = (actions: any[]) => {
     dispatch({ type: 'UPDATE_AUTOMATION', id: automationId, automation: { actions } });
     setShowAction(false);
-    if (actions.length === 0) {
-      setHasAddedAction(false);
-    }
   };
 
   return (
