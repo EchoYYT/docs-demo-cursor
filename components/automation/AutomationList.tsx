@@ -23,8 +23,9 @@ export function AutomationList() {
         actions: [],
       },
     });
-    setEditingId(newId);
-    setEditName('未命名自动化');
+    // 创建后立即进入编辑状态，不需要额外的编辑状态管理
+    // setEditingId(newId);
+    // setEditName('未命名自动化');
   };
 
   const handleEdit = (id: string, name: string) => {
